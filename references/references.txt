@@ -1,0 +1,15 @@
+A COMPARATIVE ANALYSIS OF CURRENTLY USED MICROSCOPIC AND MACROSCOPIC TRAFFIC SIMULATION SOFTWARE 
+
+An Evaluation of Traffic Simulation Models for Supporting ITS Development
+
+A Genetic Algorithm Approach to Optimization of Vehicular Traffic in Cities by Means of Configuring Traffic Lights
+
+Application of Genetic Algorithms and High-Performance Computing to the Traffic Signal Setting Problem
+
+Genetic Approach to Optimize Traffic Flow by Timing Plan Manipulation
+
+Algorithms for the Traffic Light Setting Problem on the Graph Model
+
+Time Optimization for Traffic Signal Control Using Genetic Algorithm
+
+Traffic Simulation Framework

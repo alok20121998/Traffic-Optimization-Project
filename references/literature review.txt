@@ -1,0 +1,7 @@
+[1]A Genetic Algorithm Approach to Optimization
+of Vehicular Traffic in Cities by Means of
+Configuring Traffic Lights
+
+[2]Application of Genetic Algorithms and
+High-Performance Computing to the Traffic Signal
+Setting Problem
