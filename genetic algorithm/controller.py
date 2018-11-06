@@ -1,6 +1,7 @@
 from long import GA1
 from short1 import GA2
 from simulator import Simulator
+import time
 
 class Controller:
     def __init__(self, params):
@@ -20,16 +21,19 @@ class Controller:
             ga2 = GA2(self.paramsGA2)
             ga2.run()
 
-params = {"numGeneration1": 2,
+start = time.time()
+params = {"numGeneration1": 3,
           "numGeneration2": 3,
           "crossroads": 21,
-          "timeSteps": 3,
+          "timeSteps": 2,
           "numIndividuals1": 4,
           "numIndividuals2": 4,
           "simulator": Simulator(10, 2, 3),
           "fitnessGA1": "1",
-          "fitnessGA2": "3",
+          "fitnessGA2": "1",
           "minLim": 0,
           "maxLim": 119}
 controller = Controller(params)
 controller.run()
+end = time.time()
+print(end-start)

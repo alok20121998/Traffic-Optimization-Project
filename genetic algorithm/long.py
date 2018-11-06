@@ -8,6 +8,8 @@ from deap import base
 from deap import creator
 from deap import tools
 
+from simulator import Simulator
+
 class GA1:
     def __init__(self, params):
         self.numGeneration = params["numGeneration1"]
@@ -35,16 +37,18 @@ class GA1:
         self.toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
         self.toolbox.register("select", tools.selTournament, tournsize=3)
 
-    def fitnessFunction(self, individual):
-        signals = numpy.ndarray((self.timeSteps, self.crossroads), dtype = numpy.uint8)
-        for timeStep in range(self.timeSteps):
-            timings = individual[self.crossroads*timeStep:self.crossroads*(timeStep+1)]
-            signals[timeStep] = timings
+    def fitnessFunction(self, population):
+        fitnesses = [(3, )]*self.numIndividuals
+        signals = numpy.ndarray((self.numIndividuals, self.timeSteps, self.crossroads), dtype = numpy.uint8)
+        for individual in range(self.numIndividuals):
+            for timeStep in range(self.timeSteps):
+                timings = population[individual][self.crossroads*timeStep:self.crossroads*(timeStep+1)]
+                signals[individual][timeStep] = timings
         if self.fitness=="1":
-            self.simulator.getFitness1(signals)
+            fitnesses = self.simulator.getFitness1(signals)
         elif self.fitness=="2":
-            self.simulator.getFitness2(signals)
-        return sum(individual),
+            fitnesses = self.simulator.getFitness2(signals)
+        return fitnesses
 
     def getTimings(self, timeStep):
         signalTimings = []
@@ -62,15 +66,41 @@ class GA1:
     def run(self):
         random.seed(64)
         pop = self.toolbox.population(n=self.numIndividuals)
-        self.population = pop
-        hof = tools.HallOfFame(1)
-        stats = tools.Statistics(lambda ind: ind.fitness.values)
-        stats.register("avg", numpy.mean)
-        stats.register("std", numpy.std)
-        stats.register("min", numpy.min)
-        stats.register("max", numpy.max)
+
+        CXPB, MUTPB = 0.5, 0.2
         
-        pop, log = algorithms.eaSimple(pop, self.toolbox, cxpb=0.5, mutpb=0.2, ngen=self.numGeneration, 
-                                       stats=stats, halloffame=hof, verbose=True)
+        fitnesses = self.fitnessFunction(pop)
+        for ind, fit in zip(pop, fitnesses):
+            ind.fitness.values = fit
+
+        for generation in range(self.numGeneration):
+            offspring = self.toolbox.select(pop, len(pop))
+            offspring = list(map(self.toolbox.clone, offspring))
+
+            for child1, child2 in zip(offspring[::2], offspring[1::2]):
+                if random.random() < CXPB:
+                    self.toolbox.mate(child1, child2)
+                    del child1.fitness.values
+                    del child2.fitness.values
+            for mutant in offspring:
+                if random.random() < MUTPB:
+                    self.toolbox.mutate(mutant)
+                    del mutant.fitness.values
+                    
+            fitnesses = self.fitnessFunction(offspring)
+            for ind, fit in zip(offspring, fitnesses):
+                ind.fitness.values = fit
+                
+            pop[:] = offspring
+            fits = [ind.fitness.values[0] for ind in pop]
+
+            length = len(pop)
+            mean = sum(fits) / length
+            sum2 = sum(x*x for x in fits)
+            std = abs(sum2 / length - mean**2)**0.5
+            
+            print("  Min %s" % min(fits))
+            print("  Max %s" % max(fits))
+            print("  Avg %s" % mean)
+            print("  Std %s" % std)
         self.population = pop
-        print(self.population)
