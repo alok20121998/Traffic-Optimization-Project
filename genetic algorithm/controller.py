@@ -22,16 +22,16 @@ class Controller:
             ga2.run()
 
 start = time.time()
-params = {"numGeneration1": 3,
-          "numGeneration2": 3,
+params = {"numGeneration1": 10,
+          "numGeneration2": 2,
           "crossroads": 21,
-          "timeSteps": 2,
-          "numIndividuals1": 4,
-          "numIndividuals2": 4,
+          "timeSteps": 10,
+          "numIndividuals1": 20,
+          "numIndividuals2": 20,
           "simulator": Simulator(10, 2, 3),
           "fitnessGA1": "1",
           "fitnessGA2": "1",
-          "minLim": 0,
+          "minLim": 10,
           "maxLim": 119}
 controller = Controller(params)
 controller.run()

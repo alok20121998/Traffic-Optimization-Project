@@ -2,7 +2,7 @@ import array
 import random
 from long import GA1
 import numpy
-
+import math
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -34,7 +34,7 @@ class GA2:
         self.toolbox.register("evaluate", self.fitnessFunction)
         self.toolbox.register("mate", tools.cxTwoPoint)
         self.toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
-        self.toolbox.register("select", tools.selTournament, tournsize=3)
+        self.toolbox.register("select", tools.selBest)
 
     def fitnessFunction(self, population):
         fitnesses = [(3, )]*self.numIndividuals
@@ -62,28 +62,8 @@ class GA2:
             ind.fitness.values = fit
             
         for generation in range(self.numGeneration):
-            offspring = self.toolbox.select(pop, len(pop))
-            offspring = list(map(self.toolbox.clone, offspring))
-
-            for child1, child2 in zip(offspring[::2], offspring[1::2]):
-                if random.random() < CXPB:
-                    self.toolbox.mate(child1, child2)
-                    del child1.fitness.values
-                    del child2.fitness.values
-            for mutant in offspring:
-                if random.random() < MUTPB:
-                    self.toolbox.mutate(mutant)
-                    del mutant.fitness.values
-                    
-            fitnesses = self.fitnessFunction(offspring)
-            print(offspring)
-            for ind, fit in zip(offspring, fitnesses):
-                ind.fitness.values = fit
-                
-            pop[:] = offspring
-            fits = [ind.fitness.values[0] for ind in pop]
-
             length = len(pop)
+            fits = [ind.fitness.values[0] for ind in pop]
             mean = sum(fits) / length
             sum2 = sum(x*x for x in fits)
             std = abs(sum2 / length - mean**2)**0.5
@@ -92,3 +72,26 @@ class GA2:
             print("  Max %s" % max(fits))
             print("  Avg %s" % mean)
             print("  Std %s" % std)
+            
+            bestIndividuals = self.toolbox.select(pop, int(math.sqrt(len(pop))))
+            offspring = self.toolbox.population(n=self.numIndividuals)
+            index = 0
+
+            for child1 in bestIndividuals:
+                for child2 in bestIndividuals:
+                    temp1 = child1.__deepcopy__({})
+                    temp2 = child2.__deepcopy__({})
+                    temp = self.toolbox.mate(temp1, temp2)
+                    offspring[index] = temp1
+                    index+=1
+            for mutant in offspring:
+                if random.random() < MUTPB:
+                    self.toolbox.mutate(mutant)
+                    
+            fitnesses = self.fitnessFunction(offspring)
+            for ind, fit in zip(offspring, fitnesses):
+                ind.fitness.values = fit
+                
+            pop[:] = offspring
+            fits = [ind.fitness.values[0] for ind in pop]
+
