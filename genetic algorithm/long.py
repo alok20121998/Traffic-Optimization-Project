@@ -36,7 +36,7 @@ class GA1:
         self.toolbox.register("small_population", tools.initRepeat, list, self.toolbox.small_individual)
         self.toolbox.register("evaluate", self.fitnessFunction)
         self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+        self.toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.1)
         self.toolbox.register("select", tools.selBest)
 
     def fitnessFunction(self, population):
