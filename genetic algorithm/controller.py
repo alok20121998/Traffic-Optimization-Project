@@ -5,12 +5,14 @@ import time
 
 class Controller:
     def __init__(self, params):
+        self.params = params
         self.timeSteps = params["timeSteps"]
         self.paramsListGA1 = ["numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         self.paramsGA1 = dict((k, params[k]) for k in self.paramsListGA1 if k in params)
         self.paramsListGA2 = ["numGeneration2", "crossroads", "numIndividuals2", "timeStep", "fitnessGA2", "simulator", "densities", "population", "minLim", "maxLim"]
         self.paramsGA2 = dict((k, params[k]) for k in self.paramsListGA2 if k in params)
         self.ga1 = GA1(self.paramsGA1)
+        self.params["simulator"].exit()
 
     def run(self):
         self.ga1.run()
@@ -20,13 +22,14 @@ class Controller:
             self.paramsGA2["population"] = self.ga1.getTimings(timeStep)
             ga2 = GA2(self.paramsGA2)
             ga2.run()
+        self.params.exit()
 
 start = time.time()
-params = {"numGeneration1": 10,
+params = {"numGeneration1": 20,
           "numGeneration2": 2,
           "crossroads": 21,
           "timeSteps": 10,
-          "numIndividuals1": 40,
+          "numIndividuals1": 50,
           "numIndividuals2": 40,
           "simulator": Simulator(10, 2, 3),
           "fitnessGA1": "1",

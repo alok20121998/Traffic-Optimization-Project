@@ -33,7 +33,7 @@ class GA2:
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
         self.toolbox.register("evaluate", self.fitnessFunction)
         self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+        self.toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.1)
         self.toolbox.register("select", tools.selBest)
 
     def fitnessFunction(self, population):
