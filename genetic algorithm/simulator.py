@@ -94,6 +94,7 @@ class Simulator:
 
     def getFitness1(self, population):
         self.fitnesses = [(0,)]*population.shape[0]
+        print("-"*20)
         for timeStep in range(population.shape[1]):
             print("Time step: " + str(timeStep+1))
             self.timings = np.ndarray((population.shape[0], population.shape[2]))
@@ -101,7 +102,7 @@ class Simulator:
                 self.timings[i] = population[i, timeStep]
             self.requestMany(population.shape[0])
             self.timeStepNum+=1
-            print("\n")
+            print("-"*20)
         for i in range(population.shape[0]):
             rm_file1 = "rm end_0_"+str(i)+".txt"
             rm_file2 = "rm end_1_"+str(i)+".txt"

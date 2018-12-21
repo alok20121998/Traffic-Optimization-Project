@@ -87,16 +87,16 @@ class GA1:
             mean = sum(fits) / length
             sum2 = sum(x*x for x in fits)
             std = abs(sum2 / length - mean**2)**0.5
+            improvement = ((worst-min(fits))*100)/worst
 
-            if (generation==self.numGeneration-1):
-                best = min(fits)
-            print("-----------------------------------------------------------")
-            print("Generation statistics")
-            print("  Min %s" % min(fits))
-            print("  Max %s" % max(fits))
-            print("  Avg %s" % mean)
-            print("  Std %s" % std)
-            print("-----------------------------------------------------------")
+            print("-"*30)
+            print("Generation %s statistics" % str(generation+1))
+            print("          Min: %s" % min(fits))
+            print("          Max: %s" % max(fits))
+            print("          Avg: %s" % mean)
+            print("          Std: %s" % std)
+            print("  Improvement: %s" % improvement)
+            print("-"*30)
             bestIndividuals = self.toolbox.select(pop, int(math.sqrt(len(pop))))
             offspring = self.toolbox.population(n=self.numIndividuals)
             index = 0
@@ -112,14 +112,12 @@ class GA1:
                 if random.random() < MUTPB:
                     self.toolbox.mutate(mutant)
 
-            print("generation " + str(generation))
+            print("generation " + str(generation+2))
             fitnesses = self.fitnessFunction(offspring)
             for ind, fit in zip(offspring, fitnesses):
                 ind.fitness.values = fit
                 
             pop[:] = offspring
             fits = [ind.fitness.values[0] for ind in pop]
-
-        print("improvement: " + str((worst-best)*100/best) + "%")
         
         self.population = pop
