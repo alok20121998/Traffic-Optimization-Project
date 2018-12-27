@@ -8,11 +8,14 @@ from deap import base
 from deap import creator
 from deap import tools
 import math
-
+import copy
 from simulator import Simulator
 
 class GA1:
     def __init__(self, params):
+        self.crossover = params["crossover"]
+        self.mutate = params["mutate"]
+        self.select = params["select"]
         self.numGeneration = params["numGeneration1"]
         self.crossroads = params["crossroads"]
         self.timeSteps = params["timeSteps"]
@@ -35,9 +38,12 @@ class GA1:
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
         self.toolbox.register("small_population", tools.initRepeat, list, self.toolbox.small_individual)
         self.toolbox.register("evaluate", self.fitnessFunction)
-        self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.1)
-        self.toolbox.register("select", tools.selBest)
+        self.toolbox.register("mate", self.crossover["operator"])
+        del self.crossover["operator"]
+        self.toolbox.register("mutate", self.mutate["operator"])
+        del self.mutate["operator"]
+        self.toolbox.register("select", self.select["operator"])
+        del self.select["operator"]
 
     def fitnessFunction(self, population):
         fitnesses = [(3, )]*self.numIndividuals
@@ -88,6 +94,7 @@ class GA1:
             sum2 = sum(x*x for x in fits)
             std = abs(sum2 / length - mean**2)**0.5
             improvement = ((worst-min(fits))*100)/worst
+            best = min(fits)
 
             print("-"*30)
             print("Generation %s statistics" % str(generation+1))
@@ -97,20 +104,31 @@ class GA1:
             print("          Std: %s" % std)
             print("  Improvement: %s" % improvement)
             print("-"*30)
-            bestIndividuals = self.toolbox.select(pop, int(math.sqrt(len(pop))))
-            offspring = self.toolbox.population(n=self.numIndividuals)
+            params_select = copy.deepcopy(self.select)
+            params_select["individuals"] = pop
+            params_select["k"] = int(math.sqrt(len(pop)))
+            bestIndividuals = self.toolbox.select(**params_select)
+            del params_select
+            offspring = pop.copy()
             index = 0
 
             for child1 in bestIndividuals:
                 for child2 in bestIndividuals:
                     temp1 = child1.__deepcopy__({})
                     temp2 = child2.__deepcopy__({})
-                    temp = self.toolbox.mate(temp1, temp2)
+                    params_crossover = copy.deepcopy(self.crossover)
+                    params_crossover["ind1"] = temp1
+                    params_crossover["ind2"] = temp2
+                    temp = self.toolbox.mate(**params_crossover)
+                    del params_crossover
                     offspring[index] = temp1
                     index+=1
             for mutant in offspring:
                 if random.random() < MUTPB:
-                    self.toolbox.mutate(mutant)
+                    params_mutate = copy.deepcopy(self.mutate)
+                    params_mutate["individual"] = mutant
+                    self.toolbox.mutate(**params_mutate)
+                    del params_mutate
 
             print("generation " + str(generation+2))
             fitnesses = self.fitnessFunction(offspring)
@@ -121,3 +139,4 @@ class GA1:
             fits = [ind.fitness.values[0] for ind in pop]
         
         self.population = pop
+        return (worst-best)/worst
