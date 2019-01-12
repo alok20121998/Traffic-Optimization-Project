@@ -1,0 +1,3 @@
+Crossover operator - 
+Mutation operator - 
+Selection operator - 

@@ -10,6 +10,9 @@ from deap import tools
 
 class GA2:
     def __init__(self, params):
+        self.crossover = params["crossover"]
+        self.mutate = params["mutate"]
+        self.select = params["select"]
         self.numGeneration = params["numGeneration2"]
         self.densities = params["densities"]
         self.population = params["population"]
@@ -32,9 +35,12 @@ class GA2:
         self.toolbox.register("individual", tools.initRepeat, creator.Individual, self.toolbox.random, self.crossroads)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
         self.toolbox.register("evaluate", self.fitnessFunction)
-        self.toolbox.register("mate", tools.cxTwoPoint)
-        self.toolbox.register("mutate", tools.mutShuffleIndexes, indpb=0.1)
-        self.toolbox.register("select", tools.selBest)
+        self.toolbox.register("mate", self.crossover["operator"])
+        del self.crossover["operator"]
+        self.toolbox.register("mutate", self.mutate["operator"])
+        del self.mutate["operator"]
+        self.toolbox.register("select", self.select["operator"])
+        del self.select["operator"]
 
     def fitnessFunction(self, population):
         fitnesses = [(3, )]*self.numIndividuals
@@ -53,41 +59,59 @@ class GA2:
 
     def run(self):
         random.seed(64)
-        pop = self.population
+        pop = self.toolbox.population(n=self.numIndividuals)
 
-        CXPB, MUTPB = 0.5, 0.2
-        
         fitnesses = self.fitnessFunction(pop)
         for ind, fit in zip(pop, fitnesses):
             ind.fitness.values = fit
-            
+
+        worst = min([ind.fitness.values[0] for ind in pop])
+        best = 0
+        
         for generation in range(self.numGeneration):
             length = len(pop)
             fits = [ind.fitness.values[0] for ind in pop]
             mean = sum(fits) / length
             sum2 = sum(x*x for x in fits)
             std = abs(sum2 / length - mean**2)**0.5
+            improvement = ((worst-min(fits))*100)/worst
+            best = min(fits)
             
-            print("  Min %s" % min(fits))
-            print("  Max %s" % max(fits))
-            print("  Avg %s" % mean)
-            print("  Std %s" % std)
+            print("-"*30)
+            print("Generation %s statistics" % str(generation+1))
+            print("          Min: %s" % min(fits))
+            print("          Max: %s" % max(fits))
+            print("          Avg: %s" % mean)
+            print("          Std: %s" % std)
+            print("  Improvement: %s" % improvement)
+            print("-"*30)
             
-            bestIndividuals = self.toolbox.select(pop, int(math.sqrt(len(pop))))
-            offspring = self.toolbox.population(n=self.numIndividuals)
+            params_select = copy.deepcopy(self.select)
+            params_select["individuals"] = pop
+            bestIndividuals = self.toolbox.select(**params_select)
+            print(bestIndividuals)
+            del params_select
+            offspring = pop.copy()
             index = 0
 
             for child1 in bestIndividuals:
                 for child2 in bestIndividuals:
                     temp1 = child1.__deepcopy__({})
                     temp2 = child2.__deepcopy__({})
-                    temp = self.toolbox.mate(temp1, temp2)
+                    params_crossover = copy.deepcopy(self.crossover)
+                    params_crossover["ind1"] = temp1
+                    params_crossover["ind2"] = temp2
+                    temp = self.toolbox.mate(**params_crossover)
+                    del params_crossover
                     offspring[index] = temp1
                     index+=1
             for mutant in offspring:
                 if random.random() < MUTPB:
-                    self.toolbox.mutate(mutant)
-                    
+                    params_mutate = copy.deepcopy(self.mutate)
+                    params_mutate["individual"] = mutant
+                    self.toolbox.mutate(**params_mutate)
+                    del params_mutate
+
             fitnesses = self.fitnessFunction(offspring)
             for ind, fit in zip(offspring, fitnesses):
                 ind.fitness.values = fit

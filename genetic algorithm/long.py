@@ -78,10 +78,10 @@ class GA1:
         random.seed(64)
         pop = self.toolbox.population(n=self.numIndividuals)
 
-        CXPB, MUTPB = 0.5, 0.2
         print("generation 1")
         fitnesses = self.fitnessFunction(pop)
         for ind, fit in zip(pop, fitnesses):
+            print(ind, fit)
             ind.fitness.values = fit
 
         worst = min([ind.fitness.values[0] for ind in pop])
@@ -106,8 +106,8 @@ class GA1:
             print("-"*30)
             params_select = copy.deepcopy(self.select)
             params_select["individuals"] = pop
-            params_select["k"] = int(math.sqrt(len(pop)))
             bestIndividuals = self.toolbox.select(**params_select)
+            print(bestIndividuals)
             del params_select
             offspring = pop.copy()
             index = 0
@@ -133,6 +133,7 @@ class GA1:
             print("generation " + str(generation+2))
             fitnesses = self.fitnessFunction(offspring)
             for ind, fit in zip(offspring, fitnesses):
+                print(ind, fit)
                 ind.fitness.values = fit
                 
             pop[:] = offspring

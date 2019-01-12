@@ -18,17 +18,21 @@ class Simulator:
         self.timings = None
         self.fitnesses = None
         self.timeStepNum = 0
-        self.sshClient = self.openConnection("40.117.86.130", 22, "tensortraffic", "GAUserAlok1!")
+        self.sshClient = self.openConnection("35.178.166.231", 22, "ubuntu", paramiko.RSAKey.from_private_key_file(r"alokprivatekey.pem"))
+        self.TSF_instances = 10
 
-    def openConnection(self, hostname, port, username, password):
+    def openConnection(self, hostname, port, username, key):
         sshClient = paramiko.SSHClient()
         sshClient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         sshClient.load_system_host_keys()
-        sshClient.connect(hostname, port, username, password)
+        sshClient.connect(hostname, port, username, pkey = key)
         return sshClient
 
     def exit(self):
         self.sshClient.exec_command("exit")
+
+    def changeRoutes(self):
+        pass
 
 ##Method 3: Use a virtual machine provided by Dr. Pawel Gora
     def requestStats3(self, i):
@@ -45,13 +49,12 @@ class Simulator:
         stdout.channel.recv_exit_status()
         result = stdout.read()
         print("Individual" + str(i+1) + " Total waiting time: " + str(result))
-
         self.fitnesses[i] = (self.fitnesses[i][0]+int(result), )
 
 ## Method 2: locally run modified version of TSF
     def requestStats2(self, i):
         timings = [int(j) for j in self.timings[i].tolist()]
-        request = [r'C:\Users\alok\Downloads\projects\project\traffic-signal-optimization\genetic algorithm\ForAlok'+str(i%4+1)+'\SingleSimulation.exe']
+        request = [r'.\TSF'+str(i%self.TSF_instances+1)+'\SingleSimulation.exe']
         for timing in timings:
             request.append(str(timing))
         request.append("end_"+str(self.timeStepNum%2)+"_"+str(i)+".txt")
@@ -89,7 +92,7 @@ class Simulator:
 
         
     def requestMany(self, number):
-        N_JOBS = 10
+        N_JOBS = self.TSF_instances
         Parallel(n_jobs=N_JOBS, require='sharedmem')(delayed(self.requestStats3)(i) for i in range(number))
 
     def getFitness1(self, population):
