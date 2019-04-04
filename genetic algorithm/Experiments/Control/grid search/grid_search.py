@@ -17,10 +17,10 @@ class Controller:
 
     def run(self, params):
         timeSteps = params["timeSteps"]
-        paramsListGA1 = ["crossover", "mutate", "select", "populationGA1", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
+        paramsListGA1 = ["crossover", "mutate", "select", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         paramsGA1 = dict((k, params[k]) for k in paramsListGA1 if k in params)
         ga1 = GA1(paramsGA1)
-        bestIndividuals = ga1.run()
+        bestIndividual, score, improvement = ga1.run()
         params["simulator"].exit()
         return improvement
 
@@ -31,18 +31,25 @@ UP = 119
 crossovers = [{"operator": tools.cxOnePoint},
               {"operator": tools.cxTwoPoint},
               {"operator": tools.cxUniform, "indpb":0.5},
-              {"operator": cxSimulatedBinaryBounded, "eta": 10}]
+              {"operator": cxSimulatedBinaryBounded, "eta": 1},
+              {"operator": cxSimulatedBinaryBounded, "eta": 10},
+              {"operator": cxSimulatedBinaryBounded, "eta": 100}]
 mutations = [{"operator": mutGaussian, "mu": 60, "sigma": 50, "low": LOW, "up": UP, "indpb": 0.1},
+             {"operator": mutPolynomialBounded, "eta": 1, "low": LOW, "up": UP, "indpb": 0.1},
              {"operator": mutPolynomialBounded, "eta": 10, "low": LOW, "up": UP, "indpb": 0.1},
+             {"operator": mutPolynomialBounded, "eta": 100, "low": LOW, "up": UP, "indpb": 0.1},
              {"operator": tools.mutShuffleIndexes, "indpb": 0.1},
              {"operator": tools.mutUniformInt, "low": LOW, "up": UP, "indpb": 0.1}]
+selections = [{"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
+              {"operator": tools.selTournament, "k": int(math.sqrt(NUM_INDIVIDUALS//2)), "tournsize": 2*int(math.sqrt(NUM_INDIVIDUALS//2))},
+              {"operator": tools.selStochasticUniversalSampling, "k": int(math.sqrt(NUM_INDIVIDUALS//2))}]
 combinations = []
 for crossover in crossovers:
     combinations.append({"crossover":crossover, "mutate":{"operator": tools.mutUniformInt, "low": LOW, "up": UP, "indpb": 0.1}, "select":{"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS/2))}})
 for mutation in mutations:
     combinations.append({"crossover":{"operator": tools.cxTwoPoint}, "mutate":mutation, "select":{"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS/2))}})
-##for selection in selections:
-##    combinations.append({"crossover":{"operator": tools.cxTwoPoint}, "mutate":{"operator": tools.mutUniformInt, "low": LOW, "up": UP, "indpb": 0.1}, "select":selection})
+for selection in selections:
+    combinations.append({"crossover":{"operator": tools.cxTwoPoint}, "mutate":{"operator": tools.mutUniformInt, "low": LOW, "up": UP, "indpb": 0.1}, "select":selection})
 controller = Controller()
 simulator = Simulator(10, 2, 3)
 if os.path.exists("grid_search_iterations_executed.txt"):
@@ -65,7 +72,6 @@ for i in range(startingCombination, len(combinations)):
     params = {"crossover": combinations[i]["crossover"],
               "mutate": combinations[i]["mutate"],
               "select": combinations[i]["select"],
-              "populationGA1": None,
               "numGeneration1": 3,
               "numGeneration2": 2,
               "crossroads": 21,

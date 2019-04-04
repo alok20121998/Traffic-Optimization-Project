@@ -1,0 +1,20 @@
+hypothesis 1: Optimization using sequences of timings is better than the default approaches (optimizing over entire time period with 1 sequence of timings or optimizing repeatedly over the time interval with single sequences of timings)
+
+Experiment set 1: Using proposed approach test improvement over varying factors
+	Using GA1
+	Time steps = 10
+	Time duration = 20 min
+	individuals = 50
+	Generations = 10
+Experiment set 2: Optimizing over entire period
+	Using GA1
+	Time steps = 1
+	Time duration = 20 min
+	Individuals = 50
+	Generations = 10
+Experiment set 3:
+	Using GA2
+	Time steps = 10
+	Time duration = 20
+	Individuals = 50
+	Generations = 10

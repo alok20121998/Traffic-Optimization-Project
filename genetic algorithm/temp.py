@@ -1,19 +1,19 @@
-import array
-import random
-
-import numpy
-
-from deap import algorithms
-from deap import base
-from deap import creator
-from deap import tools
-import math
-import copy
+from long import GA1
+from short1 import GA2
 from simulator import Simulator
+import time
+from deap import tools
+import os.path
+import pickle
+import math
 
-toolbox = base.Toolbox()
-toolbox.register("mate", tools.cxTwoPoint)
-a = [1, 2, 3, 4]
-b = [1, 2, 3, 4]
-print(toolbox.mate(a, b))
-print(a, b)
+combination = {"crossover": {"operator": tools.cxOnePoint},
+          "mutate": {"operator": tools.mutShuffleIndexes, "indpb": 0.1},
+          "select": {"operator": tools.selBest, "k": int(math.sqrt(10))}}
+print(combination)
+f = open("best_combination.txt", "wb")
+pickle.dump(combination, f)
+f.close()
+f = open("best_combination.txt", "rb")
+bestCombination = pickle.load(f)
+print(bestCombination)

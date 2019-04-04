@@ -18,6 +18,9 @@ class Simulator:
         self.timings = None
         self.fitnesses = None
         self.timeStepNum = 0
+        self.savingState = False
+        self.useSave = False
+        self.previousSave = 0
         self.sshClient = self.openConnection("35.178.166.231", 22, "ubuntu", paramiko.RSAKey.from_private_key_file(r"alokprivatekey.pem"))
         self.TSF_instances = 10
 
@@ -29,7 +32,32 @@ class Simulator:
         return sshClient
 
     def exit(self):
+        self.clear()
         self.sshClient.exec_command("exit")
+        pass
+
+    def setState(self, population):
+        self.savingState = True
+        signals = np.ndarray((len(population), 1, len(population[0])), dtype = np.uint8)
+        for individual in range(len(population)):
+            for timeStep in range(1):
+                timings = population[individual][len(population[0])*timeStep:len(population[0])*(timeStep+1)]
+                signals[individual][timeStep] = timings
+        self.runSimulations(signals)
+        self.savingState = False
+        self.previousSave = (self.previousSave + 1)%2
+
+    def runSimulations(self, population):
+        self.fitnesses = [(0,)]*population.shape[0]
+        for timeStep in range(population.shape[1]):
+            self.timings = np.ndarray((population.shape[0], population.shape[2]))
+            for i in range(population.shape[0]):
+                self.timings[i] = population[i, timeStep]
+            self.requestMany(population.shape[0])
+
+    def clear(self):
+        self.sshClient.exec_command("find . -type f -name end_\* -exec rm {} \;")
+        self.sshClient.exec_command("find . -type f -name saved_state_\* -exec rm {} \;")
 
     def changeRoutes(self):
         pass
@@ -41,14 +69,21 @@ class Simulator:
         request = r'TSF1/TSF1/SingleSimulation.exe '
         for timing in timings:
             request = request + (str(timing) + " ")
-        request = request + ("end_"+str(self.timeStepNum%2)+"_"+str(i)+".txt")
-        request = request + (" end_"+str((self.timeStepNum+1)%2)+"_"+str(i)+".txt")
+        if self.savingState:
+            request = request + ("saved_state_"+str(self.previousSave)+".txt")
+            request = request + (" saved_state_"+str((self.previousSave+1)%2)+".txt")
+        elif self.useSave:
+            request = request + ("saved_state_"+str(self.previousSave)+".txt")
+            request = request + (" end_"+str((self.timeStepNum+1)%2)+"_"+str(i)+".txt")
+        else:
+            request = request + ("end_"+str(self.timeStepNum%2)+"_"+str(i)+".txt")
+            request = request + (" end_"+str((self.timeStepNum+1)%2)+"_"+str(i)+".txt")
 
         stdin, stdout, stderr = self.sshClient.exec_command(request)
         time.sleep(1)
         stdout.channel.recv_exit_status()
         result = stdout.read()
-        print("Individual" + str(i+1) + " Total waiting time: " + str(result))
+##        result = random.randint(1, 10)
         self.fitnesses[i] = (self.fitnesses[i][0]+int(result), )
 
 ## Method 2: locally run modified version of TSF
@@ -95,27 +130,23 @@ class Simulator:
         N_JOBS = self.TSF_instances
         Parallel(n_jobs=N_JOBS, require='sharedmem')(delayed(self.requestStats3)(i) for i in range(number))
 
-    def getFitness1(self, population):
+    def getFitness1(self, population, rm = True):
+        if rm:
+            self.sshClient.exec_command("find . -type f -name end_\* -exec rm {} \;")
+        self.timeStepNum = 0
         self.fitnesses = [(0,)]*population.shape[0]
-        print("-"*20)
         for timeStep in range(population.shape[1]):
-            print("Time step: " + str(timeStep+1))
             self.timings = np.ndarray((population.shape[0], population.shape[2]))
             for i in range(population.shape[0]):
                 self.timings[i] = population[i, timeStep]
             self.requestMany(population.shape[0])
             self.timeStepNum+=1
-            print("-"*20)
-        for i in range(population.shape[0]):
-            rm_file1 = "rm end_0_"+str(i)+".txt"
-            rm_file2 = "rm end_1_"+str(i)+".txt"
-            self.sshClient.exec_command("cd")
-            self.sshClient.exec_command(rm_file1)
-            self.sshClient.exec_command(rm_file2)
-
+        self.timeStepNum = 0
+        if rm:
+            self.sshClient.exec_command("find . -type f -name end_\* -exec rm {} \;")
         return self.fitnesses.copy()
 
-    def getFitness2(self, population):
+    def getFitness2(self, population, rm = False):
         self.fitnesses = [(0,)]*population.shape[0]
         self.timeStepNum = 0
         for timeStep in range(population.shape[1]):
@@ -126,7 +157,7 @@ class Simulator:
             self.timeStepNum+=1
         return self.fitnesses.copy()
 
-    def getFitness3(self, population, densities):
+    def getFitness3(self, population, densities, rm = False):
         fitness = []
         for timing in timings:
             result = self.requestStats(timing.tolist())

@@ -1,0 +1,3 @@
+reselect area
+gather data
+generate and change routes
