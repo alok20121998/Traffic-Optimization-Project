@@ -15,8 +15,6 @@ class Controller:
         self.timeSteps = params["timeSteps"]
         self.paramsListGA1 = ["crossover", "mutate", "select", "populationGA1", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         self.paramsGA1 = dict((k, params[k]) for k in self.paramsListGA1 if k in params)
-        self.paramsListGA2 = ["crossover", "mutate", "select", "numGeneration2", "crossroads", "numIndividuals2", "timeStep", "fitnessGA2", "simulator", "densities", "population", "minLim", "maxLim"]
-        self.paramsGA2 = dict((k, params[k]) for k in self.paramsListGA2 if k in params)
 
     def addTimeStep(self, bestIndividuals):
         ga1 = GA1(self.paramsGA1)
@@ -38,6 +36,7 @@ class Controller:
 
     def run1(self):
         timeStep = 1
+        newPopulation = []
         while timeStep<=self.timeSteps:
             self.paramsGA1["simulator"].clear()
             self.paramsGA1["timeSteps"] = timeStep
@@ -51,43 +50,24 @@ class Controller:
                 timeStep=self.timeSteps
             elif timeStep==self.timeSteps:
                 break
-        bestIndividual = newPopulation[0][0:self.params["crossroads"]]
-        self.params["simulator"].clear()
-        self.params["simulator"].setState(bestIndividual)
-        fitness = 0
-        for timeStep in range(self.params["timeSteps"]):
-            population = []
-            for individual in newPopulation:
-                population.append(individual[timeStep*self.params["crossroads"]:(timeStep+1)*self.params["crossroads"]])
-            print("Timtestep: " + str(timeStep))
-            self.paramsGA2["densities"] = None
-            self.paramsGA2["population"] = population
-            ga2 = GA2(self.paramsGA2)
-            best, bestIndividual = ga2.run()
-            fitness+=best
-            self.params["simulator"].setState(bestIndividual)
-        print(fitness)
         self.params["simulator"].exit()
-        return fitness
-        
-NUM_INDIVIDUALS = 50
-LOW = 0
-UP = 119
+        return newPopulation
 
-params = {"crossover": {"operator": tools.cxTwoPoint},
-          "mutate": {"operator": tools.mutShuffleIndexes, "indpb": 0.1},
-          "select": {"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
-          "populationGA1": None,
-          "numGeneration1": 10,
-          "numGeneration2": 3,
-          "crossroads": 21,
-          "timeSteps": 10,
-          "numIndividuals1": NUM_INDIVIDUALS,
-          "numIndividuals2": 10,
-          "simulator": Simulator(10, 2, 3),
-          "fitnessGA1": "1",
-          "fitnessGA2": "1",
-          "minLim": LOW,
-          "maxLim": UP}
-controller = Controller(params)
-print(controller.run1())
+##Sample params
+##params = {"numGeneration1": 10,
+##          "timeSteps": 10,
+##          "numIndividuals1": 50,}
+def optimization1(params):
+    NUM_INDIVIDUALS = params["numIndividuals1"]
+    preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
+                        "mutate": {"operator": tools.mutShuffleIndexes,"indpb": 0.1},
+                        "select": {"operator": tools.selRoulette, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
+                        "populationGA1": None,
+                        "crossroads": 21,
+                        "simulator": Simulator(10, 2, 3),
+                        "fitnessGA1": "1",
+                        "minLim": 0,
+                        "maxLim": 119}
+                        
+    controller = Controller({**params, **preDefinedParams})
+    return controller.run1()

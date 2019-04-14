@@ -125,11 +125,11 @@ class GA2:
                         break
                 if (index>=len(offspring)-2):
                     break
-            for mutant in offspring:
-                params_mutate = copy.deepcopy(self.mutate)
-                params_mutate["individual"] = mutant
-                self.toolbox.mutate(**params_mutate)
-                del params_mutate
+##            for mutant in offspring:
+##                params_mutate = copy.deepcopy(self.mutate)
+##                params_mutate["individual"] = mutant
+##                self.toolbox.mutate(**params_mutate)
+##                del params_mutate
 
 ##            print("Generation " + str(generation+2))
             fitnesses = self.fitnessFunction(offspring)

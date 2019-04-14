@@ -43,7 +43,12 @@ class Controller:
             bestIndividuals = ga1.run()
             newPopulation = self.addTimeStep(bestIndividuals)
             self.paramsGA1["populationGA1"] = newPopulation
-            timeStep+=1
+            if timeStep<=self.timeSteps//2:
+                timeStep*=2
+            elif timeStep < self.timeSteps and timeStep > self.timeSteps//2:
+                timeStep=self.timeSteps
+            elif timeStep==self.timeSteps:
+                break
         self.params["simulator"].exit()
         
 NUM_INDIVIDUALS = 50
@@ -52,7 +57,7 @@ UP = 119
 
 params = {"crossover": {"operator": tools.cxTwoPoint},
           "mutate": {"operator": tools.mutShuffleIndexes, "indpb": 0.1},
-          "select": {"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
+          "select": {"operator": tools.selRoulette, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
           "populationGA1": None,
           "numGeneration1": 10,
           "numGeneration2": 3,

@@ -17,6 +17,7 @@ class Controller:
         self.paramsGA2 = dict((k, params[k]) for k in self.paramsListGA2 if k in params)
         
     def run2(self):
+        timings = []
         self.params["simulator"].clear()
         fitness = 0
         for timeStep in range(self.params["timeSteps"]):
@@ -25,10 +26,13 @@ class Controller:
             self.paramsGA2["population"] = None
             ga2 = GA2(self.paramsGA2)
             best, population = ga2.run()
+            timings.append(population[0])
             fitness+=best
             self.params["simulator"].setState(population)
-            print(best)
+            print(fitness)
+            print(timings)
         print(fitness)
+        print(timings)
         self.params["simulator"].exit()
         return ((worstFitness-bestFitness)/worstFitness)*100
 

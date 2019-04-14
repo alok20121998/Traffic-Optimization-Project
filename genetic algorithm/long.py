@@ -44,6 +44,7 @@ class GA1:
         del self.mutate["operator"]
         self.toolbox.register("select", self.select["operator"])
         del self.select["operator"]
+        self.toolbox.register("selectBest", tools.selBest)
 
     def fitnessFunction(self, population):
         self.simulator.clear()
@@ -110,7 +111,9 @@ class GA1:
     def selectIndividuals(self, pop):
         params_select = copy.deepcopy(self.select)
         params_select["individuals"] = pop
+        bestIndividual = self.toolbox.selectBest(k = 1, individuals = pop)
         bestIndividuals = self.toolbox.select(**params_select)
+        bestIndividuals[0] = bestIndividual[0]
         print("Selected individuals:")
         print(bestIndividuals)
         del params_select
@@ -163,7 +166,7 @@ class GA1:
         
         for generation in range(self.numGeneration):
             self.printStats(worst, pop, generation)
-            pop = self.removeDuplicates(pop)
+##            pop = self.removeDuplicates(pop)
             bestIndividuals = self.selectIndividuals(pop)
             if (generation==self.numGeneration-1):
                 break
