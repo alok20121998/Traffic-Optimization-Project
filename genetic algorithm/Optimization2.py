@@ -12,26 +12,34 @@ import numpy as np
 class Controller:
     def __init__(self, params):
         self.params = params
+        self.params["simulator"].setTimeInterval(self.params["intervalSize"])
         self.timeSteps = params["timeSteps"]
         self.paramsListGA2 = ["crossover", "mutate", "select", "populationGA2", "numGeneration2", "crossroads", "numIndividuals2", "fitnessGA2", "simulator", "densities", "minLim", "maxLim"]
         self.paramsGA2 = dict((k, params[k]) for k in self.paramsListGA2 if k in params)
+        self.positions = {}
 
     def run1(self):
         newPopulation = self.params["populationGA2"]
-        bestIndividual = newPopulation[0][0:self.params["crossroads"]]
+        if newPopulation is not None:
+            bestIndividual = newPopulation[0][0:self.params["crossroads"]]
         self.params["simulator"].clear()
-        self.params["simulator"].setState(bestIndividual)
+        #change simulation state
         fitness = 0
         for timeStep in range(self.params["timeSteps"]):
-            population = []
-            for individual in newPopulation:
-                population.append(individual[timeStep*self.params["crossroads"]:(timeStep+1)*self.params["crossroads"]])
+            if newPopulation is not None:
+                population = []
+                for individual in newPopulation:
+                    population.append(individual[timeStep*self.params["crossroads"]:(timeStep+1)*self.params["crossroads"]])
+            else:
+                population = None
             print("Timtestep: " + str(timeStep))
             self.paramsGA2["population"] = population
             ga2 = GA2(self.paramsGA2)
             best, bestIndividual = ga2.run()
             fitness+=best
+            self.positions[timeStep] = self.params["simulator"].getPositions(bestIndividual[0], True)
             self.params["simulator"].setState(bestIndividual)
+            print(self.positions)
         print(fitness)
         self.params["simulator"].exit()
         return fitness
@@ -39,8 +47,9 @@ class Controller:
 ##Sample params
 ##params = {"numGeneration1": 10,
 ##          "timeSteps": 10,
-##          "numIndividuals1": 50,
-##          "populationGA2:" obtained from optimzation1}
+##          "intervalSize": 120,
+##          "numIndividuals2": 50,
+##          "populationGA2": obtained from optimzation1}
 def optimization2(params):
     NUM_INDIVIDUALS = params["numIndividuals2"]
     preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
@@ -55,3 +64,9 @@ def optimization2(params):
                         
     controller = Controller({**params, **preDefinedParams})
     return controller.run1()
+params = {"numGeneration2": 2,
+          "timeSteps": 2,
+          "intervalSize": 120,
+          "numIndividuals2": 10,
+          "populationGA2": None}
+optimization2(params)

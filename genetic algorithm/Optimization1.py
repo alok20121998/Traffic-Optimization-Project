@@ -12,6 +12,7 @@ import numpy as np
 class Controller:
     def __init__(self, params):
         self.params = params
+        self.params["simulator"].setTimeInterval(self.params["intervalSize"])
         self.timeSteps = params["timeSteps"]
         self.paramsListGA1 = ["crossover", "mutate", "select", "populationGA1", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         self.paramsGA1 = dict((k, params[k]) for k in self.paramsListGA1 if k in params)
@@ -32,7 +33,8 @@ class Controller:
         ga1 = GA1(self.paramsGA1)
         newPopulation = ga1.makePopulation(bestIndividuals)
         del ga1
-        return newPopulation
+        positions = self.paramsGA1["simulator"].getPositions(newPopulation[0], False)
+        return positions, newPopulation
 
     def run1(self):
         timeStep = 1
@@ -56,6 +58,7 @@ class Controller:
 ##Sample params
 ##params = {"numGeneration1": 10,
 ##          "timeSteps": 10,
+##          "intervalSize": 120,
 ##          "numIndividuals1": 50,}
 def optimization1(params):
     NUM_INDIVIDUALS = params["numIndividuals1"]

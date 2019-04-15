@@ -9,6 +9,7 @@ import os
 import paramiko
 import time
 import random
+import csv
 
 class Simulator:
     def __init__(self, stepDuration, areaOptimized, areaCalculated):
@@ -60,6 +61,27 @@ class Simulator:
         self.sshClient.exec_command("find . -type f -name saved_state_\* -exec rm {} \;")
 
     def changeRoutes(self):
+        pass
+
+    def getPositions(self, timings, useSaveState):
+        request = [r'.\TSF_2'+'\SingleSimulation.exe']
+        for timing in timings:
+            request.append(str(timing))
+        if useSaveState:
+            request.append("saved_state_"+str(self.previousSave)+".txt")
+        else:
+            request.append("temp1.txt")
+        request.append("temp2.txt")
+        request.append("temp3")
+        result = subprocess.Popen(request, stdout=subprocess.PIPE).communicate()[0]
+        positions = {}
+        with open(r'C:\Users\alok\Downloads\projects\project\traffic-signal-optimization\genetic%20algorithm\TSF_2\temp3_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_10_temp1_txt_temp2_txt_temp3\cars119.csv', 'r') as csvFile:
+            reader = csv.reader(csvFile)
+            for row in reader:
+                positions[row[0]] = [row[2], row[3]]
+        return positions
+
+    def setTimeInterval(self, intervalSize):
         pass
 
 ##Method 3: Use a virtual machine provided by Dr. Pawel Gora
