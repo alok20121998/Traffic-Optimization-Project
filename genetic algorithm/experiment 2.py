@@ -13,7 +13,7 @@ class Controller:
     def __init__(self, params):
         self.params = params
         self.timeSteps = params["timeSteps"]
-        self.paramsListGA1 = ["crossover", "mutate", "select", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
+        self.paramsListGA1 = ["crossover", "mutate", "select", "populationGA1", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         self.paramsGA1 = dict((k, params[k]) for k in self.paramsListGA1 if k in params)
         self.ga1 = GA1(self.paramsGA1)
 
@@ -29,7 +29,7 @@ UP = 119
 
 params = {"crossover": {"operator": tools.cxTwoPoint},
           "mutate": {"operator": tools.mutShuffleIndexes, "indpb": 0.1},
-          "select": {"operator": tools.selBest, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
+          "select": {"operator": tools.selRoulette, "k": int(math.sqrt(NUM_INDIVIDUALS//2))},
           "populationGA1": None,
           "numGeneration1": 10,
           "numGeneration2": 3,

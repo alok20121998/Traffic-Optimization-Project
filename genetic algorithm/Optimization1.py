@@ -16,6 +16,7 @@ class Controller:
         self.timeSteps = params["timeSteps"]
         self.paramsListGA1 = ["crossover", "mutate", "select", "populationGA1", "numGeneration1", "crossroads", "timeSteps", "numIndividuals1", "fitnessGA1", "simulator", "minLim", "maxLim"]
         self.paramsGA1 = dict((k, params[k]) for k in self.paramsListGA1 if k in params)
+        self.positions = {}
 
     def addTimeStep(self, bestIndividuals):
         ga1 = GA1(self.paramsGA1)
@@ -34,7 +35,9 @@ class Controller:
         newPopulation = ga1.makePopulation(bestIndividuals)
         del ga1
         positions = self.paramsGA1["simulator"].getPositions(newPopulation[0], False)
-        return positions, newPopulation
+        self.positions[0] = positions
+        print(self.positions[0])
+        return newPopulation
 
     def run1(self):
         timeStep = 1
@@ -74,3 +77,10 @@ def optimization1(params):
                         
     controller = Controller({**params, **preDefinedParams})
     return controller.run1()
+
+params = {"numGeneration1": 10,
+          "timeSteps": 10,
+          "intervalSize": 120,
+          "numIndividuals1": 50,}
+
+optimization1(params)
