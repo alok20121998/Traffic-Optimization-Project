@@ -89,4 +89,4 @@ preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
                         
 controller = Controller({**params, **preDefinedParams})
 for i in range(params["timeSteps"]):
-    print(controller.run(i))
+    controller.run(i)

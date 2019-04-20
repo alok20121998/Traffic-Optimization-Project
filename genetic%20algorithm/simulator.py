@@ -58,8 +58,8 @@ class Simulator:
         pass
 
     def getPositions(self, timings):
-        request = [r'.\TSF_2'+'\SingleSimulation.exe']
-        positionLocation = r'.\TSF_2\temp3_'
+        request = [r'.\TSF_1'+'\SingleSimulation.exe']
+        positionLocation = r'.\TSF_1\temp3_'
         for timing in timings:
             request.append(str(timing))
             positionLocation+=str(timing)+"_"

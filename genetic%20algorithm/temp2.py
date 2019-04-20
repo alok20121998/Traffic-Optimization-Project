@@ -6,6 +6,7 @@ from joblib import Parallel, delayed
 import time
 import numpy as np
 import os
+import shutil
 import paramiko
 import time
 import random
@@ -13,8 +14,8 @@ import csv
 
 def getPositions(timings):
     previousSave2 = 0
-    request = [r'.\TSF_2'+'\SingleSimulation.exe']
-    positionLocation = r'C:\Users\alok\Downloads\projects\project\traffic-signal-optimization\genetic%20algorithm\TSF_2\temp3_'
+    request = [r'.\ForAlok'+'\SingleSimulation.exe']
+    positionLocation = r'.\ForAlok\temp3_'
     for timing in timings:
         request.append(str(timing))
         positionLocation+=str(timing)+"_"
@@ -28,10 +29,11 @@ def getPositions(timings):
     result = subprocess.Popen(request, stdout=subprocess.PIPE).communicate()[0]
     positions = {}
     
-    with open(positionLocation, 'r') as csvFile:
+    with open(positionLocation+"//cars119.csv", 'r') as csvFile:
         reader = csv.reader(csvFile)
         for row in reader:
             positions[row[0]] = [row[2], row[3]]
+    shutil.rmtree(positionLocation)
     return positions
-print(os.path.dirname("temp2.py"))
+getPositions([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
 
