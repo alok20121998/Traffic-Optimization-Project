@@ -177,4 +177,4 @@ class GA1:
             fits = [ind.fitness.values[0] for ind in pop]
         
         self.population = pop
-        return bestIndividuals
+        return bestFitness, (worst - bestFitness)*100/worst, bestIndividuals

@@ -84,6 +84,7 @@ class Simulator:
 
 ##Method 3: Use a virtual machine provided by Dr. Pawel Gora
     def requestStats3(self, i):
+        time.sleep(random.randint(1, 3))
         timings = [int(j) for j in self.timings[i].tolist()]
         request = r'TSF1/TSF1/SingleSimulation.exe '
         for timing in timings:

@@ -41,12 +41,12 @@ class Controller:
     def run2(self):
         self.paramsGA1["simulator"].clear()
         ga1 = GA1(self.paramsGA1)
-        bestIndividual = ga1.run()[0]
+        fitness, improvement, Individual = ga1.run()[0]
         positions = {}
         for i in range(self.timeSteps):
-            positions[i] = self.paramsGA1["simulator"].getPositions(bestIndividual[i*self.params["crossroads"]:(i+1)*self.params["crossroads"]])
+            positions[i] = self.paramsGA1["simulator"].getPositions(Individual[i*self.params["crossroads"]:(i+1)*self.params["crossroads"]])
         self.params["simulator"].exit()
-        return positions, bestIndividual
+        return positions, Individual, improvement
 
     def run1(self):
         timeStep = 0

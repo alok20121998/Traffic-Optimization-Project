@@ -56,10 +56,10 @@ class Controller:
             population = None
         self.paramsGA2["population"] = population
         ga2 = GA2(self.paramsGA2)
-        fitness, bestIndividual = ga2.run()
+        fitness, improvement, bestIndividual = ga2.run()
         positions = self.params["simulator"].getPositions(bestIndividual)
         self.params["simulator"].setState(bestIndividual)
-        return fitness, bestIndividual[0], positions
+        return improvement, bestIndividual[0], positions
 
 
 
@@ -71,10 +71,10 @@ class Controller:
 ##          "intervalSize": 120,
 ##          "numIndividuals2": 50,
 ##          "populationGA2": obtained from optimzation1}
-params = {"numGeneration2": 2,
-          "timeSteps": 2,
+params = {"numGeneration2": 10,
+          "timeSteps": 10,
           "intervalSize": 120,
-          "numIndividuals2": 3,
+          "numIndividuals2": 50,
           "populationGA2": [[10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10], [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]]}
 NUM_INDIVIDUALS = params["numIndividuals2"]
 preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
