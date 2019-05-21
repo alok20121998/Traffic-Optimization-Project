@@ -97,8 +97,8 @@ class GA2:
             params_select = copy.deepcopy(self.select)
             params_select["individuals"] = pop
             bestIndividuals = self.toolbox.select(**params_select)
-##            print("Selected individuals:")
-##            print(bestIndividuals)
+            print("Selected individuals:")
+            print(bestIndividuals)
             bestIndividual = bestIndividuals[0]
             del params_select
             if (generation==self.numGeneration-1):
@@ -126,11 +126,11 @@ class GA2:
                         break
                 if (index>=len(offspring)-2):
                     break
-##            for mutant in offspring:
-##                params_mutate = copy.deepcopy(self.mutate)
-##                params_mutate["individual"] = mutant
-##                self.toolbox.mutate(**params_mutate)
-##                del params_mutate
+            for mutant in offspring:
+                params_mutate = copy.deepcopy(self.mutate)
+                params_mutate["individual"] = mutant
+                self.toolbox.mutate(**params_mutate)
+                del params_mutate
 
 ##            print("Generation " + str(generation+2))
             fitnesses = self.fitnessFunction(offspring)

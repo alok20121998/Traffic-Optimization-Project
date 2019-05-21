@@ -8,6 +8,7 @@ import copy
 import os.path
 import pickle
 import numpy as np
+import random
 
 class Controller:
     def __init__(self, params):
@@ -71,11 +72,11 @@ class Controller:
 ##          "intervalSize": 120,
 ##          "numIndividuals2": 50,
 ##          "populationGA2": obtained from optimzation1}
-params = {"numGeneration2": 10,
-          "timeSteps": 10,
+params = {"numGeneration2": 1,
+          "timeSteps": 1,
           "intervalSize": 120,
           "numIndividuals2": 50,
-          "populationGA2": [[10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10], [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]]}
+          "populationGA2": None}
 NUM_INDIVIDUALS = params["numIndividuals2"]
 preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
                     "mutate": {"operator": tools.mutShuffleIndexes,"indpb": 0.1},
@@ -89,4 +90,9 @@ preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
                         
 controller = Controller({**params, **preDefinedParams})
 for i in range(params["timeSteps"]):
-    controller.run(i)
+    a, b, c = controller.run(i)
+    temp = {}
+    for j in range(50):
+        k = random.choice(list(c.keys()))
+        temp[k] = c[k]
+    print(temp)

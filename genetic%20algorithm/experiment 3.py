@@ -25,7 +25,7 @@ class Controller:
             self.paramsGA2["densities"] = None
             self.paramsGA2["population"] = None
             ga2 = GA2(self.paramsGA2)
-            best, population = ga2.run()
+            best, improvement, population = ga2.run()
             timings.append(population[0])
             fitness+=best
             self.params["simulator"].setState(population)
@@ -46,7 +46,7 @@ params = {"crossover": {"operator": tools.cxTwoPoint},
           "numGeneration1": 1,
           "numGeneration2": 10,
           "crossroads": 21,
-          "timeSteps": 10,
+          "timeSteps": 4,
           "numIndividuals1": 20,
           "numIndividuals2": NUM_INDIVIDUALS,
           "simulator": Simulator(10, 2, 3),
