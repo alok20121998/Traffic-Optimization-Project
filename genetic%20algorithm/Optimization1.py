@@ -42,12 +42,12 @@ class Controller:
         self.paramsGA1["simulator"].clear()
         ga1 = GA1(self.paramsGA1)
         fitness, improvement, individual = ga1.run()
-        print(individual)
+        individual = individual[0]
         positions = {}
         for i in range(self.timeSteps):
             positions[i] = self.paramsGA1["simulator"].getPositions(individual[i*self.params["crossroads"]:(i+1)*self.params["crossroads"]])
         self.params["simulator"].exit()
-        return positions, Individual, improvement
+        return positions, individual, improvement
 
     def run1(self):
         timeStep = 0
@@ -96,5 +96,9 @@ params = {"numGeneration1": 2,
           "numIndividuals1": 4,}
 
 a, b, c = optimization1(params)
+temp = []
+for i in b:
+    temp.append(i)
+print(temp)
 with open("PopulationGA2.pickle", 'wb') as f:
-    pickle.dump(b, f)
+    pickle.dump(temp, f)

@@ -49,12 +49,16 @@ class Controller:
 
     def run(self, timeStep):
         newPopulation = self.params["populationGA2"]
-        if newPopulation is not None:
+        if newPopulation is None:
+            population = None
+        elif any(isinstance(i, list) for i in newPopulation):
             population = []
             for individual in newPopulation:
                 population.append(individual[timeStep*self.params["crossroads"]:(timeStep+1)*self.params["crossroads"]])
         else:
-            population = None
+            population = []
+            population.append(newPopulation[timeStep*self.params["crossroads"]:(timeStep+1)*self.params["crossroads"]])
+
         self.paramsGA2["population"] = population
         ga2 = GA2(self.paramsGA2)
         fitness, improvement, bestIndividual = ga2.run()
@@ -72,11 +76,13 @@ class Controller:
 ##          "intervalSize": 120,
 ##          "numIndividuals2": 50,
 ##          "populationGA2": obtained from optimzation1}
+file = open("PopulationGA2.pickle", "rb")
+populationGA2 = pickle.load(file)
 params = {"numGeneration2": 1,
-          "timeSteps": 1,
+          "timeSteps": 2,
           "intervalSize": 120,
           "numIndividuals2": 50,
-          "populationGA2": None}
+          "populationGA2": populationGA2}
 NUM_INDIVIDUALS = params["numIndividuals2"]
 preDefinedParams = {"crossover": {"operator": tools.cxTwoPoint},
                     "mutate": {"operator": tools.mutShuffleIndexes,"indpb": 0.1},
